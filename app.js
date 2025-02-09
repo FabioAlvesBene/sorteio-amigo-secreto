@@ -3,68 +3,80 @@
 // Array para armazenar os nomes dos amigos
 let amigos = [];
 
-// Função para adicionar um amigo à lista
 function adicionarAmigo() {
-    let inputAmigo = document.getElementById('amigo');
-    let nomeAmigo = inputAmigo.value.trim();
+    let input = document.getElementById("amigo");
+    let nome = input.value.trim();
     
-    if (nomeAmigo && !amigos.includes(nomeAmigo)) {
-        amigos.push(nomeAmigo);
-        inputAmigo.value = ''; // Limpa o campo de entrada
-
-        atualizarListaAmigos();
-    } else if (amigos.includes(nomeAmigo)) {
-        alert("Este nome já foi adicionado!");
-    } else {
-        alert("Por favor, digite um nome válido!");
-    }
-}
-
-// Função para atualizar a lista de amigos na interface
-function atualizarListaAmigos() {
-    let listaAmigos = document.getElementById('listaAmigos');
-    listaAmigos.innerHTML = ''; // Limpa a lista existente
-
-    amigos.forEach(amigo => {
-        let li = document.createElement('li');
-        li.textContent = amigo;
-        listaAmigos.appendChild(li);
-    });
-}
-
-// Função para sortear um amigo secreto e exibir o resultado
-function sortearAmigo() {
-    if (amigos.length < 2) {
-        alert("É necessário ao menos 2 amigos para realizar o sorteio.");
+    if (nome === "") {
+        alert("Digite um nome válido.");
         return;
     }
-
-    // Embaralha a lista de amigos
-    let amigosEmbaralhados = [...amigos];
-    for (let i = amigosEmbaralhados.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [amigosEmbaralhados[i], amigosEmbaralhados[j]] = [amigosEmbaralhados[j], amigosEmbaralhados[i]];
+    
+    if (amigos.includes(nome)) {
+        alert("Esse nome já foi adicionado.");
+        return;
     }
-
-    // Atribui os amigos secretos de forma aleatória
-    let resultados = [];
-    for (let i = 0; i < amigosEmbaralhados.length; i++) {
-        let amigo = amigosEmbaralhados[i];
-        let amigoSecreto = amigosEmbaralhados[(i + 1) % amigosEmbaralhados.length];
-        resultados.push(`${amigo} tirou ${amigoSecreto}`);
-    }
-
-    exibirResultado(resultados);
+    
+    amigos.push(nome);
+    atualizarLista();
+    input.value = "";
 }
 
-// Função para exibir o resultado do sorteio
-function exibirResultado(resultados) {
-    let resultadoLista = document.getElementById('resultado');
-    resultadoLista.innerHTML = ''; // Limpa o resultado anterior
-
-    resultados.forEach(resultado => {
-        let li = document.createElement('li');
-        li.textContent = resultado;
-        resultadoLista.appendChild(li);
+function atualizarLista() {
+    let lista = document.getElementById("listaAmigos");
+    lista.innerHTML = "";
+    
+    amigos.forEach((amigo, index) => {
+        let li = document.createElement("li");
+        li.textContent = amigo;
+        
+        let botaoRemover = document.createElement("button");
+        botaoRemover.textContent = "❌";
+        botaoRemover.onclick = () => removerAmigo(index);
+        
+        li.appendChild(botaoRemover);
+        lista.appendChild(li);
     });
+}
+
+function removerAmigo(index) {
+    amigos.splice(index, 1);
+    atualizarLista();
+}
+
+function sortearAmigo() {
+    if (amigos.length < 2) {
+        alert("Adicione pelo menos dois amigos para sortear.");
+        return;
+    }
+    
+    let sorteio = [...amigos];
+    let resultado = {};
+    
+    for (let i = 0; i < amigos.length; i++) {
+        let amigoDisponivel = sorteio.filter(nome => nome !== amigos[i]);
+        
+        if (amigoDisponivel.length === 0) {
+            return sortearAmigo(); // Se não houver combinação válida, refaz o sorteio
+        }
+        
+        let sorteado = amigoDisponivel[Math.floor(Math.random() * amigoDisponivel.length)];
+        resultado[amigos[i]] = sorteado;
+        
+        sorteio.splice(sorteio.indexOf(sorteado), 1);
+    }
+    
+    exibirResultado(resultado);
+}
+
+function exibirResultado(resultado) {
+    let listaResultado = document.getElementById("resultado");
+    listaResultado.innerHTML = "";
+    
+    let amigoSorteado = prompt("Digite seu nome para ver quem você tirou:");
+    if (resultado[amigoSorteado]) {
+        alert(`Você tirou: ${resultado[amigoSorteado]}`);
+    } else {
+        alert("Nome não encontrado na lista.");
+    }
 }
