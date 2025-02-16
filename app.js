@@ -1,6 +1,3 @@
-//O principal objetivo deste desafio é fortalecer suas habilidades em lógica de programação. 
-// Aqui você deverá desenvolver a lógica para resolver o problema.
-// Array para armazenar os nomes dos amigos
 let amigos = [];
 
 function adicionarAmigo() {
@@ -52,21 +49,37 @@ function sortearAmigo() {
     
     let sorteio = [...amigos];
     let resultado = {};
+    let tentativas = 0;
+    let maxTentativas = 1000; // Evita loops infinitos
     
-    for (let i = 0; i < amigos.length; i++) {
-        let amigoDisponivel = sorteio.filter(nome => nome !== amigos[i]);
+    while (tentativas < maxTentativas) {
+        let sorteioValido = true;
+        let tempResultado = {};
+        let tempSorteio = [...sorteio];
         
-        if (amigoDisponivel.length === 0) {
-            return sortearAmigo(); // Se não houver combinação válida, refaz o sorteio
+        for (let amigo of amigos) {
+            let amigoDisponivel = tempSorteio.filter(nome => nome !== amigo);
+            
+            if (amigoDisponivel.length === 0) {
+                sorteioValido = false;
+                break;
+            }
+            
+            let sorteado = amigoDisponivel[Math.floor(Math.random() * amigoDisponivel.length)];
+            tempResultado[amigo] = sorteado;
+            tempSorteio.splice(tempSorteio.indexOf(sorteado), 1);
         }
         
-        let sorteado = amigoDisponivel[Math.floor(Math.random() * amigoDisponivel.length)];
-        resultado[amigos[i]] = sorteado;
+        if (sorteioValido) {
+            resultado = tempResultado;
+            exibirResultado(resultado);
+            return;
+        }
         
-        sorteio.splice(sorteio.indexOf(sorteado), 1);
+        tentativas++;
     }
     
-    exibirResultado(resultado);
+    alert("Não foi possível realizar um sorteio válido. Tente novamente.");
 }
 
 function exibirResultado(resultado) {
